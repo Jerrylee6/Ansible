@@ -1,0 +1,12 @@
+[root@localhost ansible]# 
+
+[root@localhost ansible]# cat hosts 
+CentOS_T01  ansible_ssh_host=127.0.0.1 ansible_ssh_port=22
+[CentOS_Groups]
+CentOS_T01
+
+[root@localhost ansible]# ansible -i hosts all -m ping
+CentOS_T01 | SUCCESS => {
+    "changed": false, 
+    "ping": "pong"
+}

@@ -1,0 +1,6 @@
+---
+- hosts: WebServer
+  remote_user: root
+  tasks:
+  - name: Test connectivity of Ansible
+    ping: 

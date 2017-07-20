@@ -1,0 +1,27 @@
+WebServer-01 ansible_ssh_host=localhost ansible_ssh_port=22
+WebServer-02 ansible_ssh_host=localhost ansible_ssh_port=22
+WebServer-03 ansible_ssh_host=localhost ansible_ssh_port=22
+WebServer-04 ansible_ssh_host=localhost ansible_ssh_port=22
+WebServer-05 ansible_ssh_host=localhost ansible_ssh_port=22
+PHPServer-[01:05] ansible_ssh_host=localhost ansible_ssh_port=22
+
+[WebServer]
+WebServer-01
+WebServer-02
+WebServer-03
+WebServer-04
+WebServer-05
+
+WebServer-[01:05]
+
+[PHPServer]
+PHPServer-01
+PHPServer-02
+PHPServer-03
+PHPServer-04
+PHPServer-05
+
+PHPServer-[01:05]
+
+
+
