@@ -1,0 +1,74 @@
+---
+- name: Install Prerequisites for "{{Gogs_Version}}"
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - glibc.i686
+    - pam-devel.i686
+    - git
+    - MySQL-python
+
+- name: Add git group
+  group:
+    name: git
+    state: present
+
+- name: Add git user which will run the Gogs service
+  user:
+    name: git
+    group: git
+
+- name: Copy Gogs installer to target machine
+  unarchive: 
+    src: "{{ Gogs_package_name }}" 
+    dest: "{{ Gogs_Prefix }}"
+    owner: git
+    group: git
+
+- name: Create a new database with name 'gogs',And Import schema
+  mysql_db:
+    login_user: "{{ MySQL_DB_User }}"
+    login_password: "{{ MySQL_DB_Pwd }}"
+    login_host: "{{ MySQL_DB_Host }}"
+    state: import
+    name: all
+    target: "{{ Gogs_Prefix }}/gogs/scripts/mysql.sql"
+  ignore_errors: yes
+
+- name: Create database user for Gogs service
+  mysql_user:
+    login_user: "{{ MySQL_DB_User }}"
+    login_password: "{{ MySQL_DB_Pwd }}"
+    host: "{{ MySQL_DB_Host }}"
+    name: gogs
+    password: "{{ gogs_password }}"
+    priv: gogs.*:ALL
+    state: present
+    update_password: always
+    config_file: /etc/my.cnf
+    login_unix_socket: /tmp/mysql.sock
+
+- name: Create configuration files directory, log directory and folder to hold repositories
+  file:
+    path: "{{item}}"
+    state: directory
+    owner: git
+    group: git
+  with_items:
+    - "{{Gogs_Prefix}}/gogs/custom/conf"
+    - "/var/log/gogs"
+    - "{{repository_root}}"
+
+- name: Cofigure Gogs settings
+  template:
+    src: app.ini.j2
+    dest: "{{Gogs_Prefix}}/gogs/custom/conf/app.ini"
+    owner: git
+    group: git
+
+- name: Deploy Systemd service file for Gogs
+  template: 
+    src: gogs.service.j2
+    dest: /etc/init.d/gogs
+    #dest: /etc/systemd/system/gogs.service

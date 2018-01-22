@@ -10,3 +10,8 @@ CentOS_T01 | SUCCESS => {
     "changed": false, 
     "ping": "pong"
 }
+
+# 单独测试user模块
+[root@localhost ansible]# ansible -i hosts all -m user -a 'name=zabbix shell=/sbin/nologin append=yes'
+[root@localhost ansible]# ansible -i hosts all -m file -a 'src=/safe/mysql/bin/mysql dest=/usr/bin/mysql state=link'
+[root@localhost ansible]# ansible-playbook site.yml -i hosts --tags="tags_name"

@@ -1,0 +1,9 @@
+---
+- name: Install Gogs_Server
+  hosts: all
+  remote_user: root
+
+  roles:
+#    - common
+#    - mysql
+    - gogs_server

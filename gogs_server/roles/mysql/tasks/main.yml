@@ -1,0 +1,90 @@
+---
+- name: Install Prerequisites for "{{ MySQL_Version }}"
+  yum: 
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - zlib-devel
+    - libtermcap-devel
+    - libxml2
+    - libxml2-devel
+    - gcc-c++
+    - make
+    - autoconf
+    - automake
+    - cmake
+    - MySQL-python
+
+- name: Download "{{ MySQL_Version }}.tar.gz" Package, and release
+  unarchive: src="{{ Down_MySQL_Package }}" dest="{{ Release_dir }}" remote_src=True
+
+- name: Add an account for the MySQL Service
+  user: name="{{ MySQL_User }}" shell=/sbin/nologin createhome=no append=yes
+
+- name: create "{{ MySQL_Prefix }}" directory if it doesn't exist
+  file: 
+    path: "{{ MySQL_Prefix }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: 0755
+  become: yes
+
+- name: create "{MySQL_DataDir}" directory if it doesn't exist
+  file:
+    path: "{{ MySQL_DataDir }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: 0755
+  become: yes
+
+- name: Copy "{{ MySQL_Script }}"
+  copy: src="{{ MySQL_Script }}" dest="{{ Release_dir }}/{{ MySQL_Version }}/{{ MySQL_Script }}"
+  
+- name: Run "{{ MySQL_Script }}" script
+  script: /bin/bash "{{ Release_dir}}/{{ MySQL_Version }}/{{ MySQL_Script }}" "{{ MySQL_Version }}"
+
+- name: Initialozation MySQL DataDir 
+  command: "{{ MySQL_Prefix }}/scripts/mysql_install_db --user=mysql --basedir={{ MySQL_Prefix }} --datadir={{ MySQL_DataDir }}"
+
+- name: Link MySQL File
+  file: src="{{ MySQL_Prefix }}/bin/mysql" dest=/usr/bin/mysql state=link
+
+- name: build my.cnf file
+  template:
+    src: my-default.cnf
+    dest: /etc/my.cnf
+  become: yes
+  
+- name: Build MySQL SERVICE File
+  template:
+    src: mysql.server
+    dest: /etc/init.d/mysqld
+    mode: 0755
+  become: yes
+  
+- name: Start MySQL SERVICE
+  command: /bin/bash /etc/init.d/mysqld start
+
+- name: Change MySQL User/PWD
+  mysql_user: 
+     login_user: root
+     login_password: ''
+     user: "{{ MySQL_DB_User }}"
+     password: "{{ MySQL_DB_Pwd }}"
+     update_password: always
+     config_file: /etc/my.cnf
+     login_unix_socket: /tmp/mysql.sock
+
+- name: Delete Old MySQL_SERVICE File
+  command: chkconfig --del mysqld
+  
+- name: Add New MySQL_SERVICE File
+  command: chkconfig --add mysqld
+  
+- name: Configuration MySQL_SERVICE
+  command: chkconfig mysqld on
+
+  notify: restart mysqld
+  

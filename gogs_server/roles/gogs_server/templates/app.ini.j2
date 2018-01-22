@@ -1,0 +1,56 @@
+# For full list of available setting options, please
+# refer to this link https://gogs.io/docs/advanced/configuration_cheat_sheet.html
+
+APP_NAME = DevYard
+RUN_USER = git
+RUN_MODE = prod
+
+[repository]
+ROOT = {{repository_root}}
+SCRIPT_TYPE = bash
+FORCE_PRIVATE = true
+MAX_CREATION_LIMIT = -1
+
+[database]
+DB_TYPE = mysql
+HOST = 127.0.0.1:3306
+NAME = gogs
+USER = gogs
+PASSWD = {{gogs_password}}
+
+[security]
+#INSTALL_LOCK = true
+
+[log]
+ROOT_PAH = /var/log/gogs
+MODE = file
+LEVEL = Trace
+
+[server]
+DOMAIN = 127.0.0.1
+HTTP_PORT = 3000
+ROOT_URL = http://0.0.0.0:3000/
+DISABLE_SSH = false
+SSH_PORT = 22
+OFFLINE_MODE = false
+
+[mailer]
+ENABLED = true
+HOST    = {{gogs_smtp_mall}}
+FROM    = {{gogs_smtp_mall_user}}
+USER    = {{gogs_smtp_mall_user}}
+PASSWD  = {{gogs_smtp_mall_passwd}}
+
+[service]
+REGISTER_EMAIL_CONFIRM = true
+ENABLE_NOTIFY_MAIL     = true
+DISABLE_REGISTRATION   = false
+ENABLE_CAPTCHA         = true
+REQUIRE_SIGNIN_VIEW    = false
+
+[picture]
+DISABLE_GRAVATAR        = false
+ENABLE_FEDERATED_AVATAR = true
+
+[session]
+PROVIDER = file

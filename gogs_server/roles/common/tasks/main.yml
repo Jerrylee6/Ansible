@@ -1,0 +1,36 @@
+---
+- name: Install libselinux-python, ntp
+  yum: 
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - libselinux-python
+    - ntp
+
+- name: Reload ansible_facts
+  setup:
+
+- name: Create Package_dir
+  file: path="{{ Package_dir }}" state=directory mode=0755
+
+- name: Create Release_dir
+  file: path="{{ Release_dir }}" state=directory mode=0755
+
+- name: Copy the EPEL repository definition
+  copy: src=epel.repo dest=/etc/yum.repos.d/epel.repo
+
+- name: Create the GPG key for EPEL
+  copy: src=RPM-GPG-KEY-EPEL-6 dest=/etc/pki/rpm-gpg
+
+- name: Copy the mysql-community repository definition
+  copy: src=mysql-community.repo dest=/etc/yum.repos.d/mysql-community.repo
+
+- name: Create the GPG key for mysql-community
+  copy: src=RPM-GPG-KEY-mysql dest=/etc/pki/rpm-gpg
+
+- name: Time Synchronization
+  cron:
+    name: "Add the Time Synchronization"
+    minute: "0"
+    hour: "0"
+    job: "/usr/sbin/ntpdate 0.centos.pool.ntp.org"
